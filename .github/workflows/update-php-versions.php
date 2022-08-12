@@ -22,6 +22,8 @@
 declare(strict_types=1);
 
 const VERSIONS = [
+	"7.3",
+	"7.4",
 	"8.0"
 ];
 

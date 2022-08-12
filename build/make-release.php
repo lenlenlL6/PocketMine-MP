@@ -17,15 +17,13 @@
  * @link http://www.pocketmine.net/
  *
  *
- */
+*/
 
 declare(strict_types=1);
 
 namespace pocketmine\build\make_release;
 
-use pocketmine\utils\Utils;
 use pocketmine\utils\VersionString;
-use pocketmine\VersionInfo;
 use function array_keys;
 use function array_map;
 use function dirname;
@@ -42,6 +40,8 @@ use function sprintf;
 use function str_pad;
 use function strlen;
 use function system;
+use const pocketmine\BASE_VERSION;
+use const pocketmine\BUILD_CHANNEL;
 use const STDERR;
 use const STDIN;
 use const STDOUT;
@@ -50,7 +50,7 @@ use const STR_PAD_LEFT;
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 
 function replaceVersion(string $versionInfoPath, string $newVersion, bool $isDev, string $channel) : void{
-	$versionInfo = Utils::assumeNotFalse(file_get_contents($versionInfoPath), $versionInfoPath . " should always exist");
+	$versionInfo = file_get_contents($versionInfoPath);
 	$versionInfo = preg_replace(
 		$pattern = '/^([\t ]*public )?const BASE_VERSION = "(\d+)\.(\d+)\.(\d+)(?:-(.*))?";$/m',
 		'$1const BASE_VERSION = "' . $newVersion . '";',
@@ -75,17 +75,9 @@ const ACCEPTED_OPTS = [
 	"channel" => "Release channel to post this build into"
 ];
 
-function systemWrapper(string $command, string $errorMessage) : void{
-	system($command, $result);
-	if($result !== 0){
-		echo "error: $errorMessage; aborting\n";
-		exit(1);
-	}
-}
-
 function main() : void{
 	$filteredOpts = [];
-	foreach(Utils::stringifyKeys(getopt("", ["current:", "next:", "channel:", "help"])) as $optName => $optValue){
+	foreach(getopt("", ["current:", "next:", "channel:", "help"]) as $optName => $optValue){
 		if($optName === "help"){
 			fwrite(STDOUT, "Options:\n");
 
@@ -105,7 +97,7 @@ function main() : void{
 	if(isset($filteredOpts["current"])){
 		$currentVer = new VersionString($filteredOpts["current"]);
 	}else{
-		$currentVer = new VersionString(VersionInfo::BASE_VERSION);
+		$currentVer = new VersionString(BASE_VERSION);
 	}
 	if(isset($filteredOpts["next"])){
 		$nextVer = new VersionString($filteredOpts["next"]);
@@ -117,29 +109,28 @@ function main() : void{
 			$currentVer->getPatch() + 1
 		));
 	}
-	$channel = $filteredOpts["channel"] ?? VersionInfo::BUILD_CHANNEL;
+	$channel = $filteredOpts["channel"] ?? BUILD_CHANNEL;
 
 	echo "About to tag version $currentVer. Next version will be $nextVer.\n";
 	echo "$currentVer will be published on release channel \"$channel\".\n";
 	echo "please add appropriate notes to the changelog and press enter...";
 	fgets(STDIN);
-	systemWrapper('git add "' . dirname(__DIR__) . '/changelogs"', "failed to stage changelog changes");
+	system('git add "' . dirname(__DIR__) . '/changelogs"');
 	system('git diff --cached --quiet "' . dirname(__DIR__) . '/changelogs"', $result);
 	if($result === 0){
 		echo "error: no changelog changes detected; aborting\n";
 		exit(1);
 	}
-	$versionInfoPath = dirname(__DIR__) . '/src/VersionInfo.php';
+	$versionInfoPath = dirname(__DIR__) . '/src/pocketmine/VersionInfo.php';
 	replaceVersion($versionInfoPath, $currentVer->getBaseVersion(), false, $channel);
-	systemWrapper('git commit -m "Release ' . $currentVer->getBaseVersion() . '" --include "' . $versionInfoPath . '"', "failed to create release commit");
-	systemWrapper('git tag ' . $currentVer->getBaseVersion(), "failed to create release tag");
-
+	system('git commit -m "Release ' . $currentVer->getBaseVersion() . '" --include "' . $versionInfoPath . '"');
+	system('git tag ' . $currentVer->getBaseVersion());
 	replaceVersion($versionInfoPath, $nextVer->getBaseVersion(), true, $channel);
-	systemWrapper('git add "' . $versionInfoPath . '"', "failed to stage changes for post-release commit");
-	systemWrapper('git commit -m "' . $nextVer->getBaseVersion() . ' is next" --include "' . $versionInfoPath . '"', "failed to create post-release commit");
+	system('git add "' . $versionInfoPath . '"');
+	system('git commit -m "' . $nextVer->getBaseVersion() . ' is next" --include "' . $versionInfoPath . '"');
 	echo "pushing changes in 5 seconds\n";
 	sleep(5);
-	systemWrapper('git push origin HEAD ' . $currentVer->getBaseVersion(), "failed to push changes to remote");
+	system('git push origin HEAD ' . $currentVer->getBaseVersion());
 }
 
 main();

@@ -17,7 +17,7 @@
  * @link http://www.pocketmine.net/
  *
  *
- */
+*/
 
 declare(strict_types=1);
 
@@ -147,10 +147,9 @@ function main() : void{
 		$build = 0;
 	}
 	foreach(buildPhar(
-		$opts["out"] ?? getcwd() . DIRECTORY_SEPARATOR . "PocketMine-MP.phar",
+		$opts["out"] ?? getcwd() . DIRECTORY_SEPARATOR . "Elco-MP.phar",
 		dirname(__DIR__) . DIRECTORY_SEPARATOR,
 		[
-			'resources',
 			'src',
 			'vendor'
 		],
@@ -169,7 +168,7 @@ if(!is_readable($tmpDir) or !is_writable($tmpDir)){
 	exit(1);
 }
 
-require("phar://" . __FILE__ . "/src/PocketMine.php");
+require("phar://" . __FILE__ . "/src/pocketmine/PocketMine.php");
 __HALT_COMPILER();
 STUB
 ,

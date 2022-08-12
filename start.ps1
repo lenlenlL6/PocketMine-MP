@@ -1,7 +1,7 @@
 ﻿[CmdletBinding(PositionalBinding=$false)]
 param (
 	[string]$php = "",
-	[switch]$Loop = $false,
+	[switch]$Loop = $true,
 	[string]$file = "",
 	[string][Parameter(ValueFromRemainingArguments)]$extraPocketMineArgs
 )
@@ -21,11 +21,13 @@ if($php -ne ""){
 }
 
 if($file -eq ""){
-	if(Test-Path "PocketMine-MP.phar"){
-	    $file = "PocketMine-MP.phar"
+	if(Test-Path "Elco-MP.phar"){
+	    $file = "Elco-MP.phar"
+	}elseif (Test-Path "src\pocketmine\PocketMine.php"){
+	    $file = "src\pocketmine\PocketMine.php"
 	}else{
-	    echo "PocketMine-MP.phar not found"
-	    echo "Downloads can be found at https://github.com/pmmp/PocketMine-MP/releases"
+	    echo "Couldn't find Elco-MP installation"
+	    echo "Downloads can be found at https://github.com/elco-mp/Elco-MP/releases"
 	    pause
 	    exit 1
 	}
@@ -46,7 +48,6 @@ while($Loop){
 	}
 	$loops++
 	echo "To escape the loop, press CTRL+C now. Otherwise, wait 5 seconds for the server to restart."
-	echo ""
 	Start-Sleep 5
 	StartServer
 }

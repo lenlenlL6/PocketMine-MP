@@ -17,12 +17,15 @@
  * @link http://www.pocketmine.net/
  *
  *
- */
+*/
 
 declare(strict_types=1);
 
 namespace pocketmine\block;
 
-class MyCustomBlock extends Opaque{
+class MyCustomBlock extends Cobblestone{
 
+	public function getName() : string{
+		return "MyCobblestone";
+	}
 }

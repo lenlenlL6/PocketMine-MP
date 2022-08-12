@@ -1,82 +1,97 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Instanceof between pocketmine\\\\block\\\\utils\\\\BannerPatternLayer and pocketmine\\\\block\\\\utils\\\\BannerPatternLayer will always evaluate to true\\.$#"
+			message: "#^Cannot access offset 'base_version' on mixed\\.$#"
 			count: 1
-			path: ../../../src/block/BaseBanner.php
+			path: ../../../src/pocketmine/CrashDump.php
 
 		-
-			message: "#^Comparison operation \"\\<\" between int\\<1, max\\> and 1 is always false\\.$#"
+			message: "#^Cannot access offset 'build' on mixed\\.$#"
 			count: 1
-			path: ../../../src/console/ConsoleCommandSender.php
+			path: ../../../src/pocketmine/CrashDump.php
 
 		-
-			message: "#^Method pocketmine\\\\crafting\\\\CraftingManager\\:\\:getDestructorCallbacks\\(\\) should return pocketmine\\\\utils\\\\ObjectSet\\<Closure\\(\\)\\: void\\> but returns pocketmine\\\\utils\\\\ObjectSet\\<Closure\\(\\)\\: void\\>\\|pocketmine\\\\utils\\\\ObjectSet\\<object\\>\\.$#"
+			message: "#^Cannot access offset 'composer_libraries' on mixed\\.$#"
 			count: 1
-			path: ../../../src/crafting/CraftingManager.php
+			path: ../../../src/pocketmine/CrashDump.php
 
 		-
-			message: "#^Property pocketmine\\\\crafting\\\\CraftingManager\\:\\:\\$destructorCallbacks \\(pocketmine\\\\utils\\\\ObjectSet\\<Closure\\(\\)\\: void\\>\\|null\\) does not accept pocketmine\\\\utils\\\\ObjectSet\\<object\\>\\.$#"
+			message: "#^Cannot access offset 'git' on mixed\\.$#"
 			count: 1
-			path: ../../../src/crafting/CraftingManager.php
+			path: ../../../src/pocketmine/CrashDump.php
 
 		-
-			message: "#^Call to function assert\\(\\) with false and 'unknown hit type' will always evaluate to false\\.$#"
+			message: "#^Cannot access offset 'is_dev' on mixed\\.$#"
 			count: 1
-			path: ../../../src/entity/projectile/Projectile.php
+			path: ../../../src/pocketmine/CrashDump.php
 
 		-
-			message: "#^Match arm comparison between 4 and 4 is always true\\.$#"
+			message: "#^Cannot access offset 'os' on mixed\\.$#"
 			count: 1
-			path: ../../../src/network/mcpe/handler/InGamePacketHandler.php
+			path: ../../../src/pocketmine/CrashDump.php
 
 		-
-			message: "#^Match arm is unreachable because previous comparison is always true\\.$#"
+			message: "#^Cannot access offset 'php' on mixed\\.$#"
 			count: 1
-			path: ../../../src/network/mcpe/handler/InGamePacketHandler.php
+			path: ../../../src/pocketmine/CrashDump.php
 
 		-
-			message: "#^Negated boolean expression is always true\\.$#"
+			message: "#^Cannot access offset 'php_os' on mixed\\.$#"
 			count: 1
-			path: ../../../src/network/mcpe/handler/InGamePacketHandler.php
+			path: ../../../src/pocketmine/CrashDump.php
 
 		-
-			message: "#^Property pocketmine\\\\network\\\\mcpe\\\\raklib\\\\PthreadsChannelWriter\\:\\:\\$buffer is never read, only written\\.$#"
+			message: "#^Cannot access offset 'protocol' on mixed\\.$#"
 			count: 1
-			path: ../../../src/network/mcpe/raklib/PthreadsChannelWriter.php
+			path: ../../../src/pocketmine/CrashDump.php
 
 		-
-			message: "#^Property pocketmine\\\\network\\\\mcpe\\\\raklib\\\\SnoozeAwarePthreadsChannelWriter\\:\\:\\$buffer is never read, only written\\.$#"
+			message: "#^Cannot access offset 'uname' on mixed\\.$#"
 			count: 1
-			path: ../../../src/network/mcpe/raklib/SnoozeAwarePthreadsChannelWriter.php
+			path: ../../../src/pocketmine/CrashDump.php
 
 		-
-			message: "#^Comparison operation \"\\<\" between int\\<1, max\\> and 1 is always false\\.$#"
+			message: "#^Cannot access offset 'zend' on mixed\\.$#"
 			count: 1
-			path: ../../../src/player/Player.php
-
-		-
-			message: "#^Dead catch \\- RuntimeException is never thrown in the try block\\.$#"
-			count: 1
-			path: ../../../src/plugin/PluginManager.php
-
-		-
-			message: "#^Static property pocketmine\\\\scheduler\\\\AsyncTask\\:\\:\\$threadLocalStorage \\(ArrayObject\\<int, array\\<string, mixed\\>\\>\\|null\\) does not accept non\\-empty\\-array\\<int, non\\-empty\\-array\\<string, mixed\\>\\>\\|ArrayObject\\<int, array\\<string, mixed\\>\\>\\.$#"
-			count: 1
-			path: ../../../src/scheduler/AsyncTask.php
-
-		-
-			message: "#^Property pocketmine\\\\thread\\\\Thread\\:\\:\\$classLoaders \\(\\(iterable\\<ClassLoader\\>&Threaded\\)\\|null\\) does not accept array\\<int, ClassLoader\\>\\|\\(iterable\\<ClassLoader\\>&Threaded\\)\\.$#"
-			count: 1
-			path: ../../../src/thread/Thread.php
-
-		-
-			message: "#^Property pocketmine\\\\thread\\\\Worker\\:\\:\\$classLoaders \\(\\(iterable\\<ClassLoader\\>&Threaded\\)\\|null\\) does not accept array\\<int, ClassLoader\\>\\|\\(iterable\\<ClassLoader\\>&Threaded\\)\\.$#"
-			count: 1
-			path: ../../../src/thread/Worker.php
+			path: ../../../src/pocketmine/CrashDump.php
 
 		-
 			message: "#^Call to function is_resource\\(\\) with resource will always evaluate to true\\.$#"
 			count: 2
-			path: ../../../src/world/format/io/region/RegionLoader.php
+			path: ../../../src/pocketmine/command/CommandReader.php
+
+		-
+			message: "#^Call to function assert\\(\\) with false and 'unknown hit type' will always evaluate to false\\.$#"
+			count: 1
+			path: ../../../src/pocketmine/entity/projectile/Projectile.php
+
+		-
+			message: "#^Dead catch \\- ReflectionException is never thrown in the try block\\.$#"
+			count: 1
+			path: ../../../src/pocketmine/level/format/io/LevelProviderManager.php
+
+		-
+			message: "#^Call to function is_resource\\(\\) with resource will always evaluate to true\\.$#"
+			count: 2
+			path: ../../../src/pocketmine/level/format/io/region/RegionLoader.php
+
+		-
+			message: "#^Call to function method_exists\\(\\) with pocketmine\\\\network\\\\mcpe\\\\CachedEncapsulatedPacket and '__toString' will always evaluate to true\\.$#"
+			count: 1
+			path: ../../../src/pocketmine/network/mcpe/protocol/DataPacket.php
+
+		-
+			message: "#^Parameter \\#1 \\$yamlString of class pocketmine\\\\plugin\\\\PluginDescription constructor expects array\\|string, array\\<string\\> given\\.$#"
+			count: 1
+			path: ../../../src/pocketmine/plugin/ScriptPluginLoader.php
+
+		-
+			message: "#^Dead catch \\- ReflectionException is never thrown in the try block\\.$#"
+			count: 2
+			path: ../../../src/pocketmine/utils/Utils.php
+
+		-
+			message: "#^Strict comparison using \\=\\=\\= between string and false will always evaluate to false\\.$#"
+			count: 1
+			path: ../../../src/pocketmine/utils/Utils.php
 

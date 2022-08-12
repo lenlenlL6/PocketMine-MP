@@ -13,17 +13,17 @@ jobs:
       fail-fast: false
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
         with:
           submodules: true
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@2.21.1
+        uses: shivammathur/setup-php@2.12.0
         with:
           php-version: 8.0
 
       - name: Restore Composer package cache
-        uses: actions/cache@v3
+        uses: actions/cache@v2
         with:
           path: |
             ~/.cache/composer/files
@@ -35,32 +35,54 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --no-dev --prefer-dist --no-interaction --ignore-platform-reqs
 
-      - name: Calculate build number
-        id: build-number
+      - name: Patch VersionInfo
         run: |
-          BUILD_NUMBER=$((2000+$GITHUB_RUN_NUMBER)) #to stay above jenkins
+          BUILD_NUMBER=2000+$GITHUB_RUN_NUMBER #to stay above jenkins
           echo "Build number: $BUILD_NUMBER"
-          echo ::set-output name=BUILD_NUMBER::$BUILD_NUMBER
+          sed -i "s/const BUILD_NUMBER = 0/const BUILD_NUMBER = ${BUILD_NUMBER}/" src/pocketmine/VersionInfo.php
 
       - name: Minify BedrockData JSON files
-        run: php vendor/pocketmine/bedrock-data/.minify_json.php
+        run: php src/pocketmine/resources/vanilla/.minify_json.php
+
+      - name: Run preprocessor
+        run: |
+          PM_PREPROCESSOR_PATH="$GITHUB_WORKSPACE/build/preprocessor"
+          php "$PM_PREPROCESSOR_PATH/PreProcessor.php" --path=src --multisize || (echo "Preprocessor exited with code $?" && exit 1)
+          #dump the diff of preprocessor replacements to a patch in case it has bugs
+          git diff > preprocessor_diff.patch
+          VENDOR_PM="$GITHUB_WORKSPACE/vendor"
+          VENDOR_PM_BACKUP="$GITHUB_WORKSPACE/vendor-before-preprocess"
+          cp -r "$VENDOR_PM" "$VENDOR_PM_BACKUP"
+          for f in $(ls $VENDOR_PM/pocketmine); do
+            echo "Processing directory \"$f\"..."
+            php "$PM_PREPROCESSOR_PATH/PreProcessor.php" --path="$VENDOR_PM/pocketmine/$f/src" --multisize || (echo "Preprocessor exited with code $?" && exit 1)
+            echo "Checking for changes in \"$f\"..."
+            DIFF=$(git diff --no-index "$VENDOR_PM_BACKUP/pocketmine/$f" "$VENDOR_PM/pocketmine/$f" || true)
+            if [ "$DIFF" != "" ]; then
+              PATCH="$GITHUB_WORKSPACE/preprocessor_diff_$f.patch"
+              echo "$DIFF" > "$PATCH"
+              echo "Generated patch file \"$PATCH\""
+            else
+              echo "No diff generated for \"$f\" (preprocessor made no changes)"
+            fi
+          done
 
       - name: Build PocketMine-MP.phar
-        run: php -dphar.readonly=0 build/server-phar.php --git ${{ github.sha }} --build ${{ steps.build-number.outputs.BUILD_NUMBER }}
+        run: php -dphar.readonly=0 build/server-phar.php --git ${{ github.sha }}
 
       - name: Get PocketMine-MP release version
         id: get-pm-version
         run: |
-          echo ::set-output name=PM_VERSION::$(php -r 'require "vendor/autoload.php"; echo \pocketmine\VersionInfo::BASE_VERSION;')
+          echo ::set-output name=PM_VERSION::$(php -r 'require "vendor/autoload.php"; echo \pocketmine\BASE_VERSION;')
           echo ::set-output name=MCPE_VERSION::$(php -r 'require "vendor/autoload.php"; echo \pocketmine\network\mcpe\protocol\ProtocolInfo::MINECRAFT_VERSION_NETWORK;')
-          echo ::set-output name=PM_VERSION_SHORT::$(php -r 'require "vendor/autoload.php"; $v = explode(".", \pocketmine\VersionInfo::BASE_VERSION); array_pop($v); echo implode(".", $v);')
-          echo ::set-output name=PM_VERSION_MD::$(php -r 'require "vendor/autoload.php"; echo str_replace(".", "", \pocketmine\VersionInfo::BASE_VERSION);')
+          echo ::set-output name=PM_VERSION_SHORT::$(php -r 'require "vendor/autoload.php"; $v = explode(".", \pocketmine\BASE_VERSION); array_pop($v); echo implode(".", $v);')
+          echo ::set-output name=PM_VERSION_MD::$(php -r 'require "vendor/autoload.php"; echo str_replace(".", "", \pocketmine\BASE_VERSION);')
 
       - name: Generate build info
-        run: php build/generate-build-info-json.php ${{ github.sha }} ${{ steps.get-pm-version.outputs.PM_VERSION }} ${{ github.repository }} ${{ steps.build-number.outputs.BUILD_NUMBER }} > build_info.json
+        run: php build/generate-build-info-json.php ${{ github.sha }} ${{ steps.get-pm-version.outputs.PM_VERSION }} ${{ github.repository }} > build_info.json
 
       - name: Upload release artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2
         with:
           name: release_artifacts
           path: |
@@ -69,7 +91,7 @@ jobs:
             ${{ github.workspace }}/build_info.json
 
       - name: Create draft release
-        uses: ncipollo/release-action@v1.10.0
+        uses: ncipollo/release-action@v1.8.6
         with:
           artifacts: ${{ github.workspace }}/PocketMine-MP.phar,${{ github.workspace }}/start.*,${{ github.workspace }}/build_info.json
           commit: ${{ github.sha }}
@@ -80,4 +102,12 @@ jobs:
           body: |
             **For Minecraft: Bedrock Edition ${{ steps.get-pm-version.outputs.MCPE_VERSION }}**
 
-            Please see the [changelogs](${{ github.server_url }}/${{ github.repository }}/blob/${{ steps.get-pm-version.outputs.PM_VERSION }}/changelogs/${{ steps.get-pm-version.outputs.PM_VERSION_SHORT }}.md#${{ steps.get-pm-version.outputs.PM_VERSION_MD }}) for details.
+            Please see the [changelogs](/changelogs/${{ steps.get-pm-version.outputs.PM_VERSION_SHORT }}.md#${{ steps.get-pm-version.outputs.PM_VERSION_MD }}) for details.
+
+      - name: Upload preprocessor diffs
+        uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: preprocessor_diffs
+          path: ${{ github.workspace }}/preprocessor_diff*.patch
+
