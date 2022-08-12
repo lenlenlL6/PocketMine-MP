@@ -259,6 +259,8 @@ class Player extends Human implements CommandSender, ChunkLoader, IPlayer{
 	public const SPECTATOR = 3;
 	public const VIEW = Player::SPECTATOR;
 
+        protected array $scorebaords = [];
+
 	private const MOVES_PER_TICK = 2;
 	private const MOVE_BACKLOG_SIZE = 100 * self::MOVES_PER_TICK; //100 ticks backlog (5 seconds)
 
